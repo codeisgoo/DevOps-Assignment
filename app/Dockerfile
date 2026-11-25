@@ -1,39 +1,32 @@
-
-# Stage 1: Build dependencies
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+RUN npm ci --omit=dev
 
-# Copy application source
-COPY app.js server.js ./
+COPY . .
 
-# Remove development dependencies
-RUN npm prune --omit=dev
-
-
-# Stage 2: Production image
-FROM node:22-alpine AS production
+FROM node:22-alpine AS runtime
 
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
 
-# Copy production dependencies and application
-COPY --from=builder --chown=node:node /app/package*.json ./
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
-COPY --from=builder --chown=node:node /app/app.js ./
-COPY --from=builder --chown=node:node /app/server.js ./
+RUN rm -rf /usr/local/lib/node_modules/npm \
+    /usr/local/lib/node_modules/corepack \
+    /opt/yarn-* \
+    /usr/local/bin/npm \
+    /usr/local/bin/npx \
+    /usr/local/bin/yarn \
+    /usr/local/bin/yarnpkg \
+    /usr/local/bin/corepack
 
-# Run as non-root user
+COPY --from=builder --chown=node:node /app /app
+
 USER node
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "src/index.js"]

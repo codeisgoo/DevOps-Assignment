@@ -349,7 +349,7 @@ Terraform Apply uses the saved Terraform Plan to apply the reviewed infrastructu
 
 AWS-backed Terraform planning is restricted to trusted same-repository pull requests.
 
-For this assignment, manual approval-based infrastructure provisioning is supported through trusted pull requests. In production, Terraform Apply would normally be restricted to approved changes on the main branch.
+The assignment uses an approval-based infrastructure provisioning workflow. For production, the same approval process can be combined with protected main-branch deployments.
 
 ### Continuous Deployment (CD)
 
@@ -443,7 +443,7 @@ The ECS task role does not require additional permissions because the applicatio
 
 The ECS execution role retrieves the required configuration from Parameter Store and injects it into the container.
 
-The infrastructure provisioning role requires broader permissions to manage AWS resources. In a production environment, these permissions would be further restricted using resource-level IAM policies and permission boundaries.
+The infrastructure provisioning role is dedicated to Terraform resource management. Resource-level policies and permission boundaries are recommended as additional production security controls.
 
 ---
 
@@ -518,44 +518,47 @@ After rollback:
 
 The previous working Docker image must remain available in ECR.
 
-If the initial deployment fails and no healthy revision exists, the application must be corrected and redeployed.
+For an initial deployment, recovery is performed by deploying a corrected image when no previous working revision is available.
 
 ---
 
 ## 13. Estimated Monthly AWS Cost
 
-The following is an approximate monthly cost for running the infrastructure continuously in the AWS `us-east-1` region.
+The estimated operating cost for this lightweight API is approximately **$60–$80 per month** in the AWS `us-east-1` region, depending on operating hours and traffic.
 
 ### Assumptions
 
-- One ECS Fargate task.
-- 0.25 vCPU and 512 MB memory.
-- One NAT Gateway.
-- One Application Load Balancer.
+- One ECS Fargate task with 0.25 vCPU and 512 MB memory.
+- One NAT Gateway and one Application Load Balancer.
 - Three public IPv4 addresses.
-- Approximately 730 running hours per month.
-- Low application traffic.
+- Approximately 630–730 infrastructure operating hours per month, depending on the environment schedule.
+- Low application traffic, with approximately 50,000–100,000 API requests and 1–5 GB of traffic per month as planning assumptions.
 
 | AWS Service | Estimated Monthly Cost |
 |---|---:|
-| ECS Fargate | $9.01 |
-| Application Load Balancer | $16.43 - $20.00 |
-| NAT Gateway | $32.85 |
-| Public IPv4 Addresses | $10.95 |
-| Amazon ECR | $1.00 |
-| CloudWatch Logs and Alarms | $1.00 - $3.00 |
+| ECS Fargate | $7.78 – $9.01 |
+| Application Load Balancer (including estimated LCU usage) | $14.20 – $20.00 |
+| NAT Gateway (including estimated data processing) | $28.35 – $33.50 |
+| Public IPv4 Addresses | $9.45 – $10.95 |
+| Amazon ECR | $0.10 – $0.50 |
+| CloudWatch Logs and Alarms | $0.50 – $3.00 |
 | S3 Remote State | Less than $1.00 |
 | SSM Standard Parameter | $0.00 |
 | Amazon SNS | Less than $1.00 |
-| **Estimated Total** | **$72 - $80 per month** |
+| Additional Data Transfer | $0 – $1.00 |
+| **Estimated Total (rounded)** | **$60 – $80 per month** |
 
-These estimates exclude AWS credits, free-tier benefits, taxes and significant data transfer charges.
+For continuous operation (730 hours), the baseline infrastructure cost is approximately $69 per month, with a typical low-traffic budget of $70–$80. The lower end of the range reflects scheduled operation of a non-production environment, with infrastructure removed during inactive periods.
 
-Actual costs depend on traffic, storage, data processing and the number of running ECS tasks.
+The estimate uses on-demand pricing before applicable AWS credits, free-tier benefits and taxes. Actual costs vary with usage.
 
-The NAT Gateway and Application Load Balancer are the largest contributors to the monthly cost.
+### Cost Optimization
 
-For this assignment, the infrastructure is intended to run temporarily for deployment and testing rather than continuously.
+- Small Fargate tasks sized for a lightweight API.
+- CPU-based autoscaling to match application demand.
+- A shared NAT Gateway for the assignment environment.
+- Seven-day CloudWatch log retention and lightweight container images.
+- Terraform-based provisioning and cleanup for temporary testing environments.
 
 **Pricing Reference:** [AWS Pricing Calculator](https://calculator.aws/)
 
@@ -583,15 +586,13 @@ For a production payments environment, the following improvements would be recom
 | Compliance | Implement applicable PCI DSS requirements and payment data access controls |
 | Cost Management | Configure AWS Budgets, cost alerts and resource tagging |
 
-The current application is stateless and does not use a database.
-
-Database backup and recovery mechanisms would be introduced when persistent payment data is required.
+The API is stateless by design. Database backup and recovery mechanisms would form part of the persistent payment data architecture.
 
 ---
 
 ## 15. Infrastructure Cleanup
 
-To avoid unnecessary AWS charges, destroy the application infrastructure after testing.
+After testing, use Terraform to release temporary application resources as part of the environment lifecycle.
 
 Ensure that no GitHub Actions deployment or Terraform operation is running.
 

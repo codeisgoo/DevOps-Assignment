@@ -86,12 +86,6 @@ variable "alarm_email" {
   default     = ""
 }
 
-variable "github_repository" {
-  description = "GitHub repository in OWNER/REPOSITORY format"
-  type        = string
-}
-
-
 variable "autoscaling_min_capacity" {
   description = "Minimum ECS tasks; keep 0 until the image is pushed, then set 1"
   type        = number

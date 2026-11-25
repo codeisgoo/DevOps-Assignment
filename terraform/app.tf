@@ -127,7 +127,7 @@ resource "aws_ecs_service" "app" {
     ]
   }
 
-  depends_on = [aws_lb_listener.http]
+  depends_on = [aws_lb_listener.http, aws_iam_role_policy.ecs_execution]
 }
 
 resource "aws_appautoscaling_target" "ecs" {

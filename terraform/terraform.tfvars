@@ -20,11 +20,7 @@ app_message = "Running in AWS ECS Fargate"
 
 # Monitoring configuration
 log_retention_days = 7
-alarm_email        = "shahnawazusama@gmail.com"
-
-# GitHub Actions OIDC configuration
-github_repository = "codeisgoo/DevOps-Assignment"
-
+alarm_email        = ""
 
 # Autoscaling policy
 

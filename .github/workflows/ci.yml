@@ -41,9 +41,11 @@ jobs:
         run: docker build -t devops-assignment-api:ci .
 
       - name: Scan Docker image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
+          scan-type: image
           image-ref: devops-assignment-api:ci
+          format: table
           severity: HIGH,CRITICAL
           exit-code: '1'
           ignore-unfixed: true

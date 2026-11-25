@@ -119,11 +119,11 @@ resource "aws_ecs_service" "app" {
     container_name   = "api"
     container_port   = var.container_port
   }
-  
+
   lifecycle {
-  ignore_changes = [
-    desired_count,
-    task_definition
+    ignore_changes = [
+      desired_count,
+      task_definition
     ]
   }
 

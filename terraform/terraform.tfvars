@@ -20,10 +20,10 @@ app_message = "Running in AWS ECS Fargate"
 
 # Monitoring configuration
 log_retention_days = 7
-alarm_email        = ""
+alarm_email        = "shahnawazusama@gmail.com"
 
 # Autoscaling policy
 
-autoscaling_min_capacity = 0
+autoscaling_min_capacity = 1
 autoscaling_max_capacity = 3
 autoscaling_cpu_target   = 60

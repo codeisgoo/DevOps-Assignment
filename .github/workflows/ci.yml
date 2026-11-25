@@ -32,7 +32,10 @@ jobs:
         run: npm ci
 
       - name: Run lint
-        run: npm run lint
+        run: |
+          npm run lint
+          echo "ESLint passed successfully. No errors or warnings found."
+              
 
       - name: Run tests
         run: npm test

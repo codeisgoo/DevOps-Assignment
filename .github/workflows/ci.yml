@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  app-ci:
+    name: Lint, Test, Build and Scan
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build Docker image
+        run: docker build -t devops-assignment-api:ci .
+
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: devops-assignment-api:ci
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    environment: ci-plan
+
+    permissions:
+      contents: read
+      id-token: write
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.12.2'
+
+      - name: Authenticate with AWS using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_CI_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -input=false -no-color -lock-timeout=60s

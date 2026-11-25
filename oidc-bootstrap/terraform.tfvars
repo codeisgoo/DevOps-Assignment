@@ -1,0 +1,8 @@
+aws_region             = "us-east-1"
+project_name           = "devops-assignment"
+environment            = "dev"
+github_repository      = "codeisgoo/DevOps-Assignment"
+github_owner_id        = "86799579"
+github_repository_id   = "1470573540"
+state_bucket           = "devops-assignment-tfstatefile"
+application_state_key  = "devops-assignment/terraform.tfstate"

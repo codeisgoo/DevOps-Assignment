@@ -119,15 +119,15 @@ resource "aws_ecs_service" "app" {
     container_name   = "api"
     container_port   = var.container_port
   }
-  
+
   lifecycle {
-  ignore_changes = [
-    desired_count,
-    task_definition
+    ignore_changes = [
+      desired_count,
+      task_definition
     ]
   }
 
-  depends_on = [aws_lb_listener.http]
+  depends_on = [aws_lb_listener.http, aws_iam_role_policy.ecs_execution]
 }
 
 resource "aws_appautoscaling_target" "ecs" {

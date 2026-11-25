@@ -200,7 +200,9 @@ resource "aws_iam_role_policy" "github_ci" {
           "sns:Get*",
           "sns:List*",
           "application-autoscaling:Describe*",
-          "application-autoscaling:ListTagsForResource"
+          "application-autoscaling:ListTagsForResource",
+          "ssm:DescribeParameters"
+
         ]
 
         Resource = "*"

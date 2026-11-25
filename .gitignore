@@ -8,4 +8,4 @@ node_modules/
 *.tfstate
 *.tfstate.*
 *.tfplan
-terraform.tfvars
+

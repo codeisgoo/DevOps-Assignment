@@ -110,7 +110,6 @@ jobs:
             -out=tfplan
 
       - name: Upload Terraform Plan
-        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
@@ -125,9 +124,6 @@ jobs:
       - app-ci
       - terraform-plan
 
-    if: |
-      github.event_name == 'workflow_dispatch' &&
-      github.ref == 'refs/heads/main'
 
     environment: infra-apply
 
